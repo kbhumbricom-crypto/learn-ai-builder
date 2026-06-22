@@ -53,7 +53,18 @@ export default function EarlyAccess() {
       if (cardRef.current) {
         // Show floating CTA if the user has scrolled past the main form card
         const cardBottom = cardRef.current.getBoundingClientRect().bottom;
-        setShowFloatingCta(cardBottom < 0);
+        let shouldShow = cardBottom < 0;
+
+        // Hide it if they've scrolled down to the footer CTA
+        const footerCta = document.getElementById('footer-cta');
+        if (footerCta) {
+          const footerTop = footerCta.getBoundingClientRect().top;
+          if (footerTop < window.innerHeight) {
+            shouldShow = false;
+          }
+        }
+
+        setShowFloatingCta(shouldShow);
       }
     };
     window.addEventListener('scroll', handleScroll, { passive: true });

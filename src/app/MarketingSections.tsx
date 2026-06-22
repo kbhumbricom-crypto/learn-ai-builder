@@ -555,6 +555,7 @@ export default function MarketingSections({ onCtaClick }: { onCtaClick?: () => v
 
         {/* CTA Content */}
         <motion.div
+          id="footer-cta"
           variants={fadeInUp}
           initial="hidden"
           whileInView="visible"
