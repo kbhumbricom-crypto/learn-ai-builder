@@ -9,8 +9,6 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
   const count = useMotionValue(0);
   const rounded = useTransform(count, (latest) => Math.round(latest));
   const widthStr = useTransform(count, (latest) => `${latest}%`);
-  // Map 0-100 to 0-400px (wider container)
-  const xPos = useTransform(count, [0, 100], [0, 400]);
   const coreOpacity = useTransform(count, [0, 5], [0, 1]);
 
   useEffect(() => {
@@ -51,7 +49,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
       <motion.div
         animate={{ opacity: phase === 'done' ? 0 : 1, scale: phase === 'done' ? 1.05 : 1 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        style={{ position: 'relative', width: '400px', height: '2px' }}
+        style={{ position: 'relative', width: '100%', maxWidth: '400px', margin: '0 3rem', height: '2px' }}
       >
         
         {/* Track Container */}
@@ -79,8 +77,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
           style={{
             position: 'absolute',
             top: '50%',
-            left: 0,
-            x: xPos,
+            left: widthStr,
             marginTop: '-10px', // Vertically center text
           }}
         >
