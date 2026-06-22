@@ -466,7 +466,7 @@ export default function MarketingSections({ onCtaClick }: { onCtaClick?: () => v
           </h2>
           
           <motion.div 
-            style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', textAlign: 'left', maxWidth: '64rem', margin: '0 auto' }}
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', textAlign: 'left', maxWidth: '64rem', margin: '0 auto' }}
             variants={staggerContainer}
           >
             <motion.div className="marketing-glass-card magnetic-card" variants={cardVariant}>
