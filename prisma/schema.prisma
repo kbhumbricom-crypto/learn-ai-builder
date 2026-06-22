@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Course {
+  id            String   @id @default(cuid())
+  title         String
+  tagline       String?
+  sourceLabel   String?
+  audience      String?
+  durationLabel String?
+  modulesCount  Int      @default(0)
+  lessonsCount  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  sourceText    String?
+
+
+  instructor    Instructor?
+  modules       Module[]
+}
+
+model Instructor {
+  id            String   @id @default(cuid())
+  courseId      String   @unique
+  course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  name          String
+  title         String?
+  image         String?
+  linkedin      String?
+  coInstructors String? // JSON string [{name, title, image}]
+  persona       String? // JSON string { summary, voice, signatures, analogies, depth }
+}
+
+model Module {
+  id        String   @id @default(cuid())
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  n         Int
+  week      Int?
+  weekLabel String?
+  title     String
+  blurb     String?
+  
+  lessons   Lesson[]
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  moduleId    String
+  module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title       String
+  minutes     Int?
+  hasPreview  Boolean  @default(false)
+  content     String? // JSON string { lede, blocks } or raw text for verbatim
+  isGenerated Boolean  @default(false)
+  completed   Boolean  @default(false)
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
