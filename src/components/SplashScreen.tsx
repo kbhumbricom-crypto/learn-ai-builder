@@ -49,7 +49,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
       <motion.div
         animate={{ opacity: phase === 'done' ? 0 : 1, scale: phase === 'done' ? 1.05 : 1 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        style={{ position: 'relative', width: 'calc(100% - 8rem)', maxWidth: '400px', height: '2px' }}
+        style={{ position: 'relative', width: '240px', height: '2px' }}
       >
         
         {/* Track Container */}
@@ -102,7 +102,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
             top: '50%', left: widthStr,
             width: '120px', height: '120px',
             marginTop: '-60px', marginLeft: '-60px',
-            background: 'radial-gradient(circle at center, rgba(255, 138, 61, 0.3) 0%, transparent 60%)',
+            background: 'radial-gradient(circle at center, rgba(255, 138, 61, 0.3) 0%, rgba(255, 138, 61, 0) 60%)',
             mixBlendMode: 'screen',
           }}
         />
