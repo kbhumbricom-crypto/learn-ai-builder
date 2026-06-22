@@ -49,7 +49,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
       <motion.div
         animate={{ opacity: phase === 'done' ? 0 : 1, scale: phase === 'done' ? 1.05 : 1 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        style={{ position: 'relative', width: '100%', maxWidth: '400px', margin: '0 3rem', height: '2px' }}
+        style={{ position: 'relative', width: 'calc(100% - 4rem)', maxWidth: '400px', height: '2px' }}
       >
         
         {/* Track Container */}
