@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Logo } from '@/components/Logo';
 import MarketingSections from './MarketingSections';
-import confetti from 'canvas-confetti';
 
 export default function EarlyAccess() {
   const [name, setName] = useState('');
@@ -131,7 +130,8 @@ export default function EarlyAccess() {
       setName('');
       setEmail('');
       
-      // Fire confetti burst!
+      // Fire confetti burst using dynamic import to avoid SSR issues
+      const confetti = (await import('canvas-confetti')).default;
       confetti({
         particleCount: 150,
         spread: 70,
