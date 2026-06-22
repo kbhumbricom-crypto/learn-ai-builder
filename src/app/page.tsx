@@ -33,20 +33,7 @@ export default function EarlyAccess() {
     });
   };
 
-  useEffect(() => {
-    const handleResize = () => {
-      const height = window.innerHeight;
-      let newScale = height / 950;
-      if (newScale > 1) newScale = 1;
-      document.documentElement.style.fontSize = `${16 * newScale}px`;
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      document.documentElement.style.fontSize = '16px';
-    };
-  }, []);
+  // Removed height-based scaling logic that was causing layout issues on mobile
 
   useEffect(() => {
     fetch('/api/lead')
