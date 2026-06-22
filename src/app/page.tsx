@@ -16,6 +16,7 @@ export default function EarlyAccess() {
   const [waitlistCount, setWaitlistCount] = useState(30);
   const [scrollY, setScrollY] = useState(0);
   const [showFloatingCta, setShowFloatingCta] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const cardRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
 
@@ -37,6 +38,11 @@ export default function EarlyAccess() {
   // Removed height-based scaling logic that was causing layout issues on mobile
 
   useEffect(() => {
+    // Artificial small delay for the loader so it feels premium
+    const timer = setTimeout(() => {
+      setIsPageLoading(false);
+    }, 800);
+
     fetch('/api/lead')
       .then(res => res.json())
       .then(data => {
@@ -45,6 +51,8 @@ export default function EarlyAccess() {
         }
       })
       .catch(console.error);
+
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {

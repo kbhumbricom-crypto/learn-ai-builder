@@ -393,7 +393,7 @@ export default function MarketingSections({ onCtaClick }: { onCtaClick?: () => v
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  style={{ position: 'absolute', bottom: '2rem', right: '3rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}
+                  style={{ position: 'relative', marginTop: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}
                 >
                   <div style={{ width: '0.5rem', height: '0.5rem', borderRadius: '50%', backgroundColor: 'var(--color-accent)', boxShadow: '0 0 10px var(--color-accent)' }} />
                   <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>
