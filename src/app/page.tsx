@@ -240,7 +240,7 @@ export default function EarlyAccess() {
               <Logo size={28} /> LearnAI
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-              <div className="hidden sm:flex" style={{ alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <Image src="https://i.pravatar.cc/100?img=44" alt="User" width={32} height={32} unoptimized style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '2px solid var(--color-bg)', zIndex: 4, position: 'relative' }} />
                   <Image src="https://i.pravatar.cc/100?img=47" alt="User" width={32} height={32} unoptimized style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '2px solid var(--color-bg)', marginLeft: '-0.75rem', zIndex: 3, position: 'relative' }} />
