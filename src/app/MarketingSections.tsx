@@ -518,8 +518,8 @@ export default function MarketingSections({ onCtaClick }: { onCtaClick?: () => v
           </div>
           
           <h2 className="section-title section-title-dark">
-            Everyone deserves a<br/>
-            <span className="title-accent">great teacher.</span>
+            Everyone deserves<br/>
+            a <span className="title-accent">great teacher.</span>
           </h2>
           
           <div style={{ fontSize: 'clamp(0.95rem, 3vw, 1.15rem)', lineHeight: 1.8, color: 'var(--color-text-muted)', display: 'flex', flexDirection: 'column', gap: '1.5rem', textAlign: 'center' }}>
