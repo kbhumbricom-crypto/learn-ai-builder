@@ -189,12 +189,6 @@ export default function Home() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
           
-          <a href="/dashboard" style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-text-muted)', transition: 'color 0.2s', textDecoration: 'none' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-accent)'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--color-text-muted)'}>
-            My Courses
-          </a>
-
-          <div className="hidden md:block" style={{ width: '1px', height: '24px', backgroundColor: 'rgba(255,255,255,0.1)' }} />
-
           <div className="hidden md:flex" style={{ alignItems: 'center', gap: '0.75rem' }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <Image src="https://i.pravatar.cc/100?img=1" alt="User" width={32} height={32} unoptimized style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '2px solid var(--color-bg)', zIndex: 4, position: 'relative' }} />

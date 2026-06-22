@@ -8,6 +8,8 @@ export const metadata = {
   title: 'My Courses | Learn.ai',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
   const courses = await prisma.course.findMany({
     orderBy: { createdAt: 'desc' },
