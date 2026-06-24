@@ -40,14 +40,14 @@ export default async function DashboardPage() {
             <Logo size={30} /> LearnAI
           </div>
 
-          <nav className="flex flex-col gap-2">
-            <Link href="/dashboard" className="sidebar-link active">
+          <nav className="flex flex-row md:flex-col gap-2 overflow-x-auto no-scrollbar pb-2 md:pb-0 w-full">
+            <Link href="/dashboard" className="sidebar-link active !w-auto md:!w-full whitespace-nowrap flex-shrink-0 justify-center md:justify-start">
               <LayoutDashboard size={18} /> My Courses
             </Link>
-            <Link href="#" className="sidebar-link">
+            <Link href="#" className="sidebar-link !w-auto md:!w-full whitespace-nowrap flex-shrink-0 justify-center md:justify-start">
               <Compass size={18} /> Explore
             </Link>
-            <Link href="/" className="sidebar-link">
+            <Link href="/" className="sidebar-link !w-auto md:!w-full whitespace-nowrap flex-shrink-0 justify-center md:justify-start">
               <Home size={18} /> Generate Course
             </Link>
           </nav>
