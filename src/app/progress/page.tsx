@@ -614,14 +614,7 @@ function ProgressPageContent() {
         </motion.div>
         </motion.div>
       ) : (
-        <div className="card" style={{ 
-          position: 'relative', 
-          zIndex: 10, 
-          width: '100%', 
-          maxWidth: '32rem',
-          padding: '2.5rem 2rem',
-          boxShadow: 'var(--shadow-md)'
-        }}>
+        <div className="card relative z-10 w-full max-w-[32rem] p-5 sm:p-8 md:p-10 shadow-md">
           
           {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
