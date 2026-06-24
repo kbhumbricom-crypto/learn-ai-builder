@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import { UserButton, SignInButton, useAuth } from '@clerk/nextjs';
 import { User, Mail, Layers, UserCircle, MessageSquare, CheckCircle, Link as LinkIcon } from 'lucide-react';
 import Image from 'next/image';
@@ -242,9 +243,9 @@ export default function EarlyAccess() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
               {isLoaded && userId ? (
                 <>
-                  <a href="/progress" style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-text)', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = 'var(--color-accent)'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--color-text)'}>
+                  <Link href="/dashboard" style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-text)', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = 'var(--color-accent)'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--color-text)'}>
                     My Courses
-                  </a>
+                  </Link>
                   <div style={{ width: '1px', height: '1.5rem', backgroundColor: 'rgba(255,255,255,0.1)' }}></div>
                   <UserButton 
                     appearance={{
