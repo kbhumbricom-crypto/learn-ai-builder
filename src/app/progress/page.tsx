@@ -208,6 +208,13 @@ function ProgressPageContent() {
   // Extract domain for subtitle
   const displayDomain = courseUrl ? courseUrl.replace(/^https?:\/\//, '').split('/')[0] : 'Scanning source...';
 
+  // Redirect to dashboard if accessed directly without a URL
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !courseUrl) {
+      router.replace('/dashboard');
+    }
+  }, [courseUrl, router]);
+
   // Countdown effect
   useEffect(() => {
     if (cooldown === null) return;
