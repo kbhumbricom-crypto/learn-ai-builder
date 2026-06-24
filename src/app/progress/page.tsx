@@ -380,17 +380,18 @@ function ProgressPageContent() {
         >
           <motion.div 
             ref={cardRef}
+            onClick={requestGyro}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             onTouchMove={handleTouchMove}
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }} 
+            initial={{ opacity: 0, y: 60, scale: 0.85, filter: 'blur(15px)' }} 
+            animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }} 
             whileHover={{
-              boxShadow: '0 0 40px rgba(255,138,61,0.15), inset 0 1px 0 rgba(255,255,255,0.05)',
-              borderColor: 'rgba(255,138,61,0.3)',
+              boxShadow: '0 0 50px rgba(255,138,61,0.2), inset 0 1px 0 rgba(255,255,255,0.05)',
+              borderColor: 'rgba(255,138,61,0.4)',
               scale: 1.02
             }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
             className={`card magnetic-card ${hasGyro ? 'gyro-active' : ''}`}
             style={{ 
               rotateX,
