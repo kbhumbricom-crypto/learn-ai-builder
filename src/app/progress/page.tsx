@@ -128,6 +128,13 @@ function ProgressPageContent() {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
+  const [gyroPermissionGranted, setGyroPermissionGranted] = useState<boolean | null>(null);
+  const [needsGyroPermission, setNeedsGyroPermission] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && typeof (window as any).DeviceOrientationEvent?.requestPermission === 'function') {
+      setNeedsGyroPermission(true);
+    }
   }, []);
 
   // Gyroscope tilt for mobile
@@ -161,14 +168,34 @@ function ProgressPageContent() {
     };
 
     if (typeof window !== 'undefined' && window.DeviceOrientationEvent) {
-      window.addEventListener('deviceorientation', handleDeviceOrientation);
+      if (typeof (DeviceOrientationEvent as any).requestPermission !== 'function') {
+        // Non-iOS 13+ devices don't need permission
+        window.addEventListener('deviceorientation', handleDeviceOrientation);
+      } else if (gyroPermissionGranted) {
+        // iOS 13+ devices that have been granted permission
+        window.addEventListener('deviceorientation', handleDeviceOrientation);
+      }
     }
+    
     return () => {
       if (typeof window !== 'undefined' && window.DeviceOrientationEvent) {
         window.removeEventListener('deviceorientation', handleDeviceOrientation);
       }
     };
-  }, [mouseX, mouseY]);
+  }, [gyroPermissionGranted, mouseX, mouseY]);
+
+  const requestGyro = async () => {
+    if (typeof window !== 'undefined' && typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+      try {
+        const permissionState = await (DeviceOrientationEvent as any).requestPermission();
+        if (permissionState === 'granted') {
+          setGyroPermissionGranted(true);
+        }
+      } catch (error) {
+        console.error('Gyro permission error:', error);
+      }
+    }
+  };
   
   // Extract domain for subtitle
   const displayDomain = courseUrl ? courseUrl.replace(/^https?:\/\//, '').split('/')[0] : 'Scanning source...';
@@ -527,25 +554,48 @@ function ProgressPageContent() {
             </motion.form>
           </div>
           
-          <button 
-            onClick={() => router.push('/')}
-            style={{ 
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--color-text-muted)',
-              fontSize: '0.85rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              transition: 'color 0.2s',
-              zIndex: 20
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-text)'}
-            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--color-text-muted)'}
-          >
-            <ArrowLeft size={14} /> Return to Home
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+            <button 
+              onClick={() => router.push('/')}
+              style={{ 
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--color-text-muted)',
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                transition: 'color 0.2s',
+                zIndex: 20
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-text)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--color-text-muted)'}
+            >
+              <ArrowLeft size={14} /> Return to Home
+            </button>
+
+            {needsGyroPermission && !gyroPermissionGranted && (
+              <button 
+                onClick={requestGyro}
+                style={{ 
+                  background: 'transparent',
+                  border: '1px solid rgba(255,138,61,0.2)',
+                  color: 'var(--color-accent)',
+                  fontSize: '0.75rem',
+                  padding: '0.4rem 0.8rem',
+                  borderRadius: '100px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  zIndex: 20
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,138,61,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,138,61,0.4)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(255,138,61,0.2)'; }}
+              >
+                Enable 3D Tilt
+              </button>
+            )}
+          </div>
           </motion.div>
 
           {/* Back of Card (VIP Pass) */}
