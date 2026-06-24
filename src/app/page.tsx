@@ -235,7 +235,7 @@ export default function EarlyAccess() {
           }
         `}</style>
           {/* Navbar */}
-          <nav style={{ padding: '1.2rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '75rem', margin: '0 auto', width: '100%' }}>
+          <nav className="w-full max-w-[75rem] mx-auto flex justify-between items-center px-5 md:px-8 py-4 md:py-5">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '1.45rem', color: 'var(--color-text)' }}>
               <Logo size={28} /> LearnAI
             </div>
@@ -256,7 +256,7 @@ export default function EarlyAccess() {
                 </>
               ) : isLoaded && !userId ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <div className="hidden sm:flex items-center">
                     <Image src="https://i.pravatar.cc/100?img=44" alt="User" width={32} height={32} unoptimized style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '2px solid var(--color-bg)', zIndex: 4, position: 'relative' }} />
                     <Image src="https://i.pravatar.cc/100?img=47" alt="User" width={32} height={32} unoptimized style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '2px solid var(--color-bg)', marginLeft: '-0.75rem', zIndex: 3, position: 'relative' }} />
                     <Image src="https://i.pravatar.cc/100?img=68" alt="User" width={32} height={32} unoptimized style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '2px solid var(--color-bg)', marginLeft: '-0.75rem', zIndex: 2, position: 'relative' }} />
@@ -264,7 +264,7 @@ export default function EarlyAccess() {
                       5k
                     </div>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', marginRight: '1rem' }}>
+                  <div className="hidden sm:flex flex-col mr-4">
                     <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text)', lineHeight: 1.2 }}>Join 5k+</span>
                     <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', lineHeight: 1.2 }}>active learners</span>
                   </div>
