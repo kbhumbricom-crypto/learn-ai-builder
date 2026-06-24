@@ -11,6 +11,7 @@ import remarkGfm from 'remark-gfm';
 import ReadingProgressBar from '@/components/ReadingProgressBar';
 import { Settings2, Type } from 'lucide-react';
 import { useReaderSettings } from '../../ReaderSettingsContext';
+import { triggerHaptic } from '@/lib/haptics';
 
 export default function LessonReader({ params }: { params: Promise<{ id: string, lessonId: string }> }) {
   const { id, lessonId } = use(params);
@@ -125,6 +126,7 @@ export default function LessonReader({ params }: { params: Promise<{ id: string,
   }, [lessonId]);
 
   const markComplete = async () => {
+    triggerHaptic([20, 50, 20]); // Confetti-like double pop for completing a lesson!
     if (isCompleting) return;
     setIsCompleting(true);
     try {

@@ -192,6 +192,7 @@ function ProgressPageContent() {
   }, [gyroPermissionGranted, mouseX, mouseY]);
 
   const requestGyro = async () => {
+    triggerHaptic([10]);
     if (typeof window !== 'undefined' && typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
       try {
         const permissionState = await (DeviceOrientationEvent as any).requestPermission();

@@ -10,6 +10,7 @@ import Image from 'next/image';
 import { Logo } from '@/components/Logo';
 import MarketingSections from './MarketingSections';
 import SplashScreen from '@/components/SplashScreen';
+import { triggerHaptic } from '@/lib/haptics';
 
 export default function EarlyAccess() {
   const router = useRouter();
@@ -117,6 +118,7 @@ export default function EarlyAccess() {
   }, []);
 
   const handleCtaClick = () => {
+    triggerHaptic([10]);
     if (cardRef.current) {
       // Calculate offset to leave a bit of breathing room at the top
       const yOffset = -20;
@@ -136,6 +138,7 @@ export default function EarlyAccess() {
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    triggerHaptic([15]);
     
     setError(null);
     if (!courseUrl.includes('http')) {
