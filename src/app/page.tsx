@@ -281,10 +281,10 @@ export default function EarlyAccess() {
                   ✦ Early access is now open
                 </span>
                 <h1 style={{ fontSize: 'clamp(2.75rem, 4.5vw, 4rem)', fontWeight: 800, color: 'var(--color-text)', lineHeight: 1.1, marginBottom: '1.5rem', letterSpacing: '-0.03em', textWrap: 'balance' }}>
-                  Master any subject, through the mind you&nbsp;<span className="font-serif italic font-normal bg-gradient-to-br from-[#FFD4B0] via-orange-soft to-orange bg-clip-text text-transparent tracking-tight">choose.</span>
+                  Learn any paid course for&nbsp;<span className="font-serif italic font-normal bg-gradient-to-br from-[#FFD4B0] via-orange-soft to-orange bg-clip-text text-transparent tracking-tight">free,</span><br />straight from its syllabus.
                 </h1>
                 <p style={{ fontSize: 'clamp(1rem, 1.5vw, 1.25rem)', color: 'var(--color-text-muted)', lineHeight: 1.6, maxWidth: '90%' }}>
-                  LearnAI turns any syllabus into a deeply personalized course taught in the style of your favorite expert. Join our early access to be the first to experience the future of learning.
+                  Unlock world-class education instantly. Provide a link to an expensive course outline, and LearnAI reconstructs the material into a bespoke curriculum designed specifically for you.
                 </p>
               </div>
 
