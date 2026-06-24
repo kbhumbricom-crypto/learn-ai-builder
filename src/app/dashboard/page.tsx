@@ -44,9 +44,6 @@ export default async function DashboardPage() {
             <Link href="/dashboard" className="sidebar-link active !w-auto md:!w-full whitespace-nowrap flex-shrink-0 justify-center md:justify-start">
               <LayoutDashboard size={18} /> My Courses
             </Link>
-            <Link href="#" className="sidebar-link !w-auto md:!w-full whitespace-nowrap flex-shrink-0 justify-center md:justify-start">
-              <Compass size={18} /> Explore
-            </Link>
             <Link href="/" className="sidebar-link !w-auto md:!w-full whitespace-nowrap flex-shrink-0 justify-center md:justify-start">
               <Home size={18} /> Generate Course
             </Link>
