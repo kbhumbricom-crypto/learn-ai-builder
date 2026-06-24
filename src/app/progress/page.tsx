@@ -691,12 +691,8 @@ function ProgressPageContent() {
                  forceRedirectUrl={typeof window !== 'undefined' ? window.location.href : '/'} 
                  signUpUrl="/sign-up"
                  appearance={{
-                   baseTheme: dark,
                    variables: {
-                     colorBackground: 'transparent',
-                     colorInputBackground: 'rgba(255, 255, 255, 0.05)',
-                     colorText: 'white',
-                     colorTextSecondary: 'rgba(255, 255, 255, 0.7)',
+                     colorBackground: 'transparent'
                    },
                    elements: {
                      cardBox: { boxShadow: 'none', margin: 0 },

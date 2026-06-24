@@ -15,12 +15,8 @@ export default function SignUpPage() {
         path="/sign-up"
         signInUrl="/progress" /* Optional: where to go if they click sign in, could be / */
         appearance={{
-          baseTheme: dark,
           variables: {
             colorBackground: 'transparent',
-            colorInputBackground: 'rgba(255, 255, 255, 0.05)',
-            colorText: 'white',
-            colorTextSecondary: 'rgba(255, 255, 255, 0.7)',
           },
           elements: {
             cardBox: { boxShadow: 'none', margin: 0 },

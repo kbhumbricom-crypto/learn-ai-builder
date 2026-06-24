@@ -247,7 +247,6 @@ export default function EarlyAccess() {
                   </a>
                   <div style={{ width: '1px', height: '1.5rem', backgroundColor: 'rgba(255,255,255,0.1)' }}></div>
                   <UserButton 
-                    afterSignOutUrl="/" 
                     appearance={{
                       elements: {
                         userButtonAvatarBox: "transition-all duration-300 hover:scale-110 hover:shadow-[0_0_20px_rgba(255,138,61,0.5)] border-2 border-transparent hover:border-[#FF8A3D]"
