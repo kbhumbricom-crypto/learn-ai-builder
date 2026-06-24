@@ -445,7 +445,7 @@ function ProgressPageContent() {
               pointer-events: none;
               z-index: 0;
             }
-            .magnetic-card:hover::before {
+            .magnetic-card:hover::before, .magnetic-card.gyro-active::before {
               opacity: 1;
             }
             .magnetic-card::after {
@@ -463,7 +463,7 @@ function ProgressPageContent() {
               mask-composite: exclude;
               padding: 1px;
             }
-            .magnetic-card:hover::after {
+            .magnetic-card:hover::after, .magnetic-card.gyro-active::after {
               opacity: 1;
             }
             .magnetic-card > * {
