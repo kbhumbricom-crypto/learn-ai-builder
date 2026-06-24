@@ -20,6 +20,8 @@ model Course {
   updatedAt     DateTime @updatedAt
   sourceText    String?
 
+  userId        String?
+  sessionId     String?
 
   instructor    Instructor?
   modules       Module[]
@@ -67,4 +69,18 @@ model Lead {
   name      String
   email     String   @unique
   createdAt DateTime @default(now())
+}
+
+model JobQueue {
+  id                 String    @id @default(cuid())
+  courseUrl          String
+  notes              String?
+  instructorOverride String?
+  status             String    @default("PENDING")
+  courseId           String?
+  error              String?
+  userId             String?
+  sessionId          String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 }

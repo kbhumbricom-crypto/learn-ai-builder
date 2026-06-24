@@ -1,15 +1,11 @@
 import { NextResponse } from 'next/server';
 import { streamText, generateText } from 'ai';
-import { createGroq } from '@ai-sdk/groq';
+import { getAvailableGroqClient, markKeyRateLimited } from '@/lib/groqRotation';
 import prisma from '@/lib/prisma';
-
-const groq = createGroq({
-  apiKey: process.env.GROQ_API_KEY,
-});
 
 export async function POST(req: Request) {
   try {
-    const { lessonId, strength = 10, forceGenerate = false } = await req.json();
+    const { lessonId, strength = 10, forceGenerate = false, modelId = 'llama-3.3-70b-versatile' } = await req.json();
 
     const lesson = await prisma.lesson.findUnique({
       where: { id: lessonId },
@@ -37,6 +33,25 @@ export async function POST(req: Request) {
     const instructor = course.instructor;
     const persona = instructor?.persona ? JSON.parse(instructor.persona) : {};
 
+    let groqClient: any;
+    let currentKey: string = '';
+    
+    try {
+      const available = getAvailableGroqClient();
+      groqClient = available.client;
+      currentKey = available.apiKey;
+    } catch (e: any) {
+      if (e.message.startsWith('ALL_KEYS_EXHAUSTED')) {
+         const retryAfter = parseInt(e.message.split(':')[1], 10);
+         return NextResponse.json({ 
+           error: 'All AI Engines are currently busy. Please wait.', 
+           isRateLimit: true,
+           retryAfter
+         }, { status: 429 });
+      }
+      throw e;
+    }
+
     // ---------------------------------------------------------------------------
     // STAGE 1: THE ARCHITECT (Fast Research & Structuring)
     // ---------------------------------------------------------------------------
@@ -57,11 +72,52 @@ export async function POST(req: Request) {
     
     Do NOT write the actual lesson prose. Just output the outline.`;
 
-    const { text: architectOutline } = await generateText({
-      model: groq('llama-3.1-8b-instant'), // Extremely fast 8B model for outlining
-      prompt: architectPrompt,
-      temperature: 0.1,
-    });
+    let architectOutline = "";
+    let architectSuccess = false;
+    let architectLastError: any = null;
+    const ARCHITECT_MODELS = ['llama-3.1-8b-instant', 'gemma2-9b-it', 'mixtral-8x7b-32768'];
+
+    for (const model of ARCHITECT_MODELS) {
+      try {
+        let currentGroqClient = groqClient;
+        try {
+          const { text } = await generateText({
+            model: currentGroqClient(model),
+            prompt: architectPrompt,
+            temperature: 0.1,
+          });
+          architectOutline = text;
+          architectSuccess = true;
+          break;
+        } catch (e: any) {
+          const errMsg = (e?.message || '').toLowerCase();
+          if (errMsg.includes('429') || errMsg.includes('quota') || errMsg.includes('rate limit')) {
+             markKeyRateLimited(currentKey, 60);
+             const backup = getAvailableGroqClient();
+             currentGroqClient = backup.client;
+             currentKey = backup.apiKey;
+             
+             const { text } = await generateText({
+               model: currentGroqClient(model),
+               prompt: architectPrompt,
+               temperature: 0.1,
+             });
+             architectOutline = text;
+             architectSuccess = true;
+             break;
+          } else {
+             throw e;
+          }
+        }
+      } catch (loopError: any) {
+        architectLastError = loopError;
+        console.warn(`Architect Model ${model} failed. Automatically trying next fallback...`);
+      }
+    }
+
+    if (!architectSuccess) {
+      throw architectLastError || new Error("All AI engines failed to generate the outline.");
+    }
 
     // ---------------------------------------------------------------------------
     // STAGE 2: THE AUTHOR (Prose & Formatting)
@@ -114,47 +170,74 @@ export async function POST(req: Request) {
     - Do NOT wrap your response in a json block. Just output raw markdown text.
     `;
 
+    const FALLBACK_MODELS = ['llama-3.3-70b-versatile', 'mixtral-8x7b-32768', 'gemma2-9b-it', 'llama-3.1-8b-instant'];
     let result;
-    try {
-      result = await streamText({
-        model: groq('llama-3.3-70b-versatile'), // Heavy model for prose
-        prompt,
-        temperature: 0.3,
-        abortSignal: AbortSignal.timeout(25000),
-        onFinish: async ({ text }) => {
-          try {
-            await prisma.lesson.update({
-              where: { id: lessonId },
-              data: { content: text, isGenerated: true }
+    let success = false;
+    let lastError: any = null;
+
+    for (const model of FALLBACK_MODELS) {
+      try {
+        let currentGroqClient = groqClient;
+        
+        try {
+          result = await streamText({
+            model: currentGroqClient(model),
+            prompt,
+            temperature: 0.3,
+            abortSignal: AbortSignal.timeout(25000),
+            onFinish: async ({ text }) => {
+              try {
+                await prisma.lesson.update({
+                  where: { id: lessonId },
+                  data: { content: text, isGenerated: true }
+                });
+              } catch (dbError) {
+                console.error("Critical DB Sync Error during stream finish:", dbError);
+              }
+            }
+          });
+          success = true;
+          break; // If successful, exit loop
+        } catch (streamError: any) {
+          const errMsg = (streamError?.message || '').toLowerCase();
+          if (errMsg.includes('429') || errMsg.includes('quota') || errMsg.includes('rate limit')) {
+            console.warn(`Model ${model} rate limited on primary key. Swapping to backup key...`);
+            markKeyRateLimited(currentKey, 60);
+            
+            const backup = getAvailableGroqClient();
+            currentGroqClient = backup.client;
+            currentKey = backup.apiKey;
+            
+            result = await streamText({
+              model: currentGroqClient(model),
+              prompt,
+              temperature: 0.3,
+              abortSignal: AbortSignal.timeout(25000),
+              onFinish: async ({ text }) => {
+                try {
+                  await prisma.lesson.update({
+                    where: { id: lessonId },
+                    data: { content: text, isGenerated: true }
+                  });
+                } catch (dbError) {
+                  console.error("Critical DB Sync Error during fallback stream finish:", dbError);
+                }
+              }
             });
-          } catch (dbError) {
-            console.error("Critical DB Sync Error during stream finish:", dbError);
+            success = true;
+            break; // If successful on backup key, exit loop
+          } else {
+            throw streamError; // Throw up to loopError block
           }
         }
-      });
-    } catch (initialError: any) {
-      const errMsg = (initialError?.message || '').toLowerCase();
-      if (errMsg.includes('429') || errMsg.includes('quota') || errMsg.includes('rate limit')) {
-        console.warn("Primary model rate limited. Falling back to secondary model for streaming...");
-        result = await streamText({
-          model: groq('llama-3.1-8b-instant'), // Fallback
-          prompt,
-          temperature: 0.3,
-          abortSignal: AbortSignal.timeout(25000),
-          onFinish: async ({ text }) => {
-            try {
-              await prisma.lesson.update({
-                where: { id: lessonId },
-                data: { content: text, isGenerated: true }
-              });
-            } catch (dbError) {
-              console.error("Critical DB Sync Error during fallback stream finish:", dbError);
-            }
-          }
-        });
-      } else {
-        throw initialError;
+      } catch (loopError: any) {
+        lastError = loopError;
+        console.warn(`Model ${model} failed (${loopError?.message || 'Unknown'}). Automatically trying next fallback...`);
       }
+    }
+
+    if (!success || !result) {
+      throw lastError || new Error("All AI engines failed to respond.");
     }
 
     return result.toTextStreamResponse({

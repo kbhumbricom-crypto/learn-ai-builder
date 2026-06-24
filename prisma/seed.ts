@@ -46,7 +46,33 @@ async function main() {
       courseId: course.id,
       lessons: {
         create: [
-          { title: 'The Two Systems: Fast Brain vs. Slow Brain', hasPreview: false, isGenerated: false, content: null },
+          { 
+            title: 'The Two Systems: Fast Brain vs. Slow Brain', 
+            hasPreview: true, 
+            isGenerated: true, 
+            content: `
+# Welcome to System 1 and System 2
+
+Imagine you are driving on an empty highway. You don't have to think about keeping the car in the lane; you just do it. You can listen to the radio, talk to your passenger, or get lost in thought. This is **System 1** at work: fast, automatic, intuitive, and largely unconscious.
+
+Now imagine you are asked to multiply 17 by 24 in your head. You immediately feel a sense of cognitive strain. You have to retrieve the rules of multiplication, hold intermediate results in your memory, and focus intently. This is **System 2**: slow, deliberate, analytical, and highly conscious.
+
+## The Core Concept
+
+In his groundbreaking work, Nobel laureate Daniel Kahneman popularized this two-system framework to explain how we think and make decisions.
+
+1. **System 1 (The Autopilot):** It operates automatically and quickly, with little or no effort and no sense of voluntary control. It handles innate skills (like recognizing a face) and learned associations (like reading simple words).
+2. **System 2 (The Pilot):** It allocates attention to the effortful mental activities that demand it, including complex computations. The operations of System 2 are often associated with the subjective experience of agency, choice, and concentration.
+
+### Why Does This Matter?
+
+Most of the time, we navigate the world using System 1. It is incredibly efficient and usually highly accurate in familiar situations. However, System 1 is prone to systematic errors, or **biases**. Because it relies on heuristics (mental shortcuts), it can be easily fooled.
+
+System 2 is lazy. It typically accepts the suggestions of System 1 without much scrutiny. When System 1 encounters a problem it cannot solve (like the math problem above), it calls on System 2 to help. 
+
+The key to better decision-making is learning to recognize situations in which mistakes are likely and trying harder to avoid significant mistakes when the stakes are high. You need to know when to trust your intuition (System 1) and when to engage your analytical mind (System 2).
+            `
+          },
           { title: 'Why Your First Instinct Is Usually Wrong', hasPreview: false, isGenerated: false, content: null },
           { title: 'The Paradox of Too Many Options', hasPreview: false, isGenerated: false, content: null },
         ],

@@ -38,7 +38,9 @@ export default function FlowchartRenderer({ chart }: { chart: string }) {
       backgroundColor: 'rgba(255, 255, 255, 0.02)', 
       borderRadius: '1rem', 
       border: '1px solid rgba(255, 255, 255, 0.08)',
-      width: '100%'
+      width: '100%',
+      whiteSpace: 'normal',
+      fontFamily: 'var(--font-geist-sans), sans-serif'
     }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: '600px', margin: '0 auto' }}>
         {nodes.map((node, i) => (

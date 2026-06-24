@@ -68,7 +68,7 @@ export default function LessonReader({ params }: { params: Promise<{ id: string,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ lessonId, strength, forceGenerate }),
-        signal: AbortSignal.timeout(15000)
+        signal: AbortSignal.timeout(60000)
       });
       
       if (!response.ok) {
@@ -107,8 +107,16 @@ export default function LessonReader({ params }: { params: Promise<{ id: string,
           setCompletion(cleanText);
         }
       }
+      
+      if (!text.trim() && done) {
+        throw new Error("The AI generated an empty response. Please try again.");
+      }
     } catch (err: any) {
-      setError(err.message);
+      if (err.name === 'TimeoutError' || err.name === 'AbortError') {
+        setError("The connection timed out while waiting for the AI to structure the lesson. Please try again.");
+      } else {
+        setError(err.message || "An unknown error occurred while generating the lesson.");
+      }
     }
   };
 
@@ -326,7 +334,7 @@ export default function LessonReader({ params }: { params: Promise<{ id: string,
           ) : error ? (
             <div className="glass-card" style={{ textAlign: 'center', marginTop: '4rem', padding: '3rem', backgroundColor: 'rgba(255, 0, 0, 0.05)', border: '1px solid rgba(255, 0, 0, 0.2)' }}>
               <div style={{ color: '#ff6b6b', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
-                {error.includes('503') || error.includes('UNAVAILABLE') 
+                {error.includes('503') || error.includes('UNAVAILABLE') || error.includes('busy')
                   ? "The AI model is currently experiencing high demand. Please try again in a moment."
                   : error}
               </div>

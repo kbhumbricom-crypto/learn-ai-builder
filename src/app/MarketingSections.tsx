@@ -603,11 +603,11 @@ export default function MarketingSections({ onCtaClick }: { onCtaClick?: () => v
               zIndex: 2 
             }}
           >
-            Get Early Access
+            Start Generating
           </button>
           
           <div style={{ marginTop: '1.5rem', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)' }}>
-            LIMITED SPOTS AVAILABLE. JOIN THE WAITLIST TODAY.
+            START LEARNING ANY COURSE FOR FREE. TRY IT NOW.
           </div>
         </motion.div>
       </section>

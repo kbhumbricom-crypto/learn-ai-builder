@@ -1,19 +1,25 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { User, Mail, Layers, UserCircle, MessageSquare, CheckCircle } from 'lucide-react';
-import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { UserButton, SignInButton, useAuth } from '@clerk/nextjs';
+import { User, Mail, Layers, UserCircle, MessageSquare, CheckCircle, Link as LinkIcon } from 'lucide-react';
+import Image from 'next/image';
 import { Logo } from '@/components/Logo';
 import MarketingSections from './MarketingSections';
 import SplashScreen from '@/components/SplashScreen';
 
 export default function EarlyAccess() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const router = useRouter();
+  const { isLoaded, userId } = useAuth();
+  const [courseUrl, setCourseUrl] = useState('');
+  const [notes, setNotes] = useState('');
+  const [instructor, setInstructor] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [peekTitle, setPeekTitle] = useState<string | null>(null);
+  const [isPeeking, setIsPeeking] = useState(false);
   const [waitlistCount, setWaitlistCount] = useState(30);
   const [scrollY, setScrollY] = useState(0);
   const [showFloatingCta, setShowFloatingCta] = useState(false);
@@ -73,6 +79,36 @@ export default function EarlyAccess() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // URL Peeking logic
+  useEffect(() => {
+    if (!courseUrl || !courseUrl.includes('http')) {
+      setPeekTitle(null);
+      setIsPeeking(false);
+      return;
+    }
+
+    setIsPeeking(true);
+    const timeoutId = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/peek?url=${encodeURIComponent(courseUrl)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.title) {
+            setPeekTitle(data.title);
+          } else {
+            setPeekTitle(null);
+          }
+        }
+      } catch (e) {
+        setPeekTitle(null);
+      } finally {
+        setIsPeeking(false);
+      }
+    }, 600); // Debounce to avoid spamming the API
+
+    return () => clearTimeout(timeoutId);
+  }, [courseUrl]);
+
   useEffect(() => {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -101,50 +137,14 @@ export default function EarlyAccess() {
     if (e) e.preventDefault();
     
     setError(null);
-    if (!name || !email) {
-      setError('Please provide both your name and email address.');
-      return;
-    }
-    
-    if (!email.includes('@')) {
-      setError('Please provide a valid email address.');
+    if (!courseUrl.includes('http')) {
+      setError('Please provide a valid course URL including http:// or https://');
       return;
     }
 
     setIsLoading(true);
-
-    try {
-      const res = await fetch('/api/lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to join waitlist');
-      }
-
-      setIsSuccess(true);
-      setWaitlistCount(prev => prev + 1);
-      setName('');
-      setEmail('');
-      
-      // Trigger confetti
-      const confetti = (await import('canvas-confetti')).default;
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#ff8a3d', '#ffffff']
-      });
-
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
-    } finally {
-      setIsLoading(false);
-    }
+    const searchParams = new URLSearchParams({ courseUrl, notes, instructor });
+    router.push(`/progress?${searchParams.toString()}`);
   };
 
   return (
@@ -240,20 +240,42 @@ export default function EarlyAccess() {
               <Logo size={28} /> LearnAI
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <Image src="https://i.pravatar.cc/100?img=44" alt="User" width={32} height={32} unoptimized style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '2px solid var(--color-bg)', zIndex: 4, position: 'relative' }} />
-                  <Image src="https://i.pravatar.cc/100?img=47" alt="User" width={32} height={32} unoptimized style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '2px solid var(--color-bg)', marginLeft: '-0.75rem', zIndex: 3, position: 'relative' }} />
-                  <Image src="https://i.pravatar.cc/100?img=68" alt="User" width={32} height={32} unoptimized style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '2px solid var(--color-bg)', marginLeft: '-0.75rem', zIndex: 2, position: 'relative' }} />
-                  <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '2px solid var(--color-bg)', marginLeft: '-0.75rem', zIndex: 1, position: 'relative', backgroundColor: 'var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text)', letterSpacing: '-0.02em' }}>
-                    +{waitlistCount}
+              {isLoaded && userId ? (
+                <>
+                  <a href="/progress" style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-text)', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = 'var(--color-accent)'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--color-text)'}>
+                    My Courses
+                  </a>
+                  <div style={{ width: '1px', height: '1.5rem', backgroundColor: 'rgba(255,255,255,0.1)' }}></div>
+                  <UserButton 
+                    afterSignOutUrl="/" 
+                    appearance={{
+                      elements: {
+                        userButtonAvatarBox: "transition-all duration-300 hover:scale-110 hover:shadow-[0_0_20px_rgba(255,138,61,0.5)] border-2 border-transparent hover:border-[#FF8A3D]"
+                      }
+                    }}
+                  />
+                </>
+              ) : isLoaded && !userId ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Image src="https://i.pravatar.cc/100?img=44" alt="User" width={32} height={32} unoptimized style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '2px solid var(--color-bg)', zIndex: 4, position: 'relative' }} />
+                    <Image src="https://i.pravatar.cc/100?img=47" alt="User" width={32} height={32} unoptimized style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '2px solid var(--color-bg)', marginLeft: '-0.75rem', zIndex: 3, position: 'relative' }} />
+                    <Image src="https://i.pravatar.cc/100?img=68" alt="User" width={32} height={32} unoptimized style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '2px solid var(--color-bg)', marginLeft: '-0.75rem', zIndex: 2, position: 'relative' }} />
+                    <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '2px solid var(--color-bg)', marginLeft: '-0.75rem', zIndex: 1, position: 'relative', backgroundColor: 'var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text)', letterSpacing: '-0.02em' }}>
+                      5k
+                    </div>
                   </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', marginRight: '1rem' }}>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text)', lineHeight: 1.2 }}>Join 5k+</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', lineHeight: 1.2 }}>active learners</span>
+                  </div>
+                  <SignInButton mode="modal">
+                    <button style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-bg)', backgroundColor: 'var(--color-text)', borderRadius: '2rem', cursor: 'pointer', border: 'none', transition: 'opacity 0.2s' }} onMouseOver={(e) => e.currentTarget.style.opacity = '0.9'} onMouseOut={(e) => e.currentTarget.style.opacity = '1'}>
+                      Sign In
+                    </button>
+                  </SignInButton>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text)', lineHeight: 1.2 }}>Join others</span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', lineHeight: 1.2 }}>on the waitlist</span>
-                </div>
-              </div>
+              ) : null}
             </div>
           </nav>
 
@@ -277,9 +299,7 @@ export default function EarlyAccess() {
               }} />
 
               <div style={{ position: 'relative', zIndex: 1 }}>
-                <span className="shimmer-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-accent)', border: '1px solid rgba(255, 138, 61, 0.3)', padding: '0.4rem 0.8rem', borderRadius: 'var(--radius-full)', fontSize: '0.85rem', fontWeight: 600, marginBottom: '1.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
-                  ✦ Early access is now open
-                </span>
+                {/* Removed Early Access Badge */}
                 <h1 style={{ fontSize: 'clamp(2.75rem, 4.5vw, 4rem)', fontWeight: 800, color: 'var(--color-text)', lineHeight: 1.1, marginBottom: '1.5rem', letterSpacing: '-0.03em', textWrap: 'balance' }}>
                   Learn any paid course for&nbsp;<span className="font-serif italic font-normal bg-gradient-to-br from-[#FFD4B0] via-orange-soft to-orange bg-clip-text text-transparent tracking-tight">free,</span><br />straight from its syllabus.
                 </h1>
@@ -345,24 +365,6 @@ export default function EarlyAccess() {
                 <div className="edge-glow-wrapper"></div>
                 
                 <AnimatePresence mode="wait">
-                  {isSuccess ? (
-                    <motion.div 
-                      key="success"
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ duration: 0.4 }}
-                      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '2rem 0' }}
-                    >
-                      <div style={{ width: '4rem', height: '4rem', borderRadius: '50%', backgroundColor: 'rgba(255, 138, 61, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)', marginBottom: '1.5rem', boxShadow: '0 0 30px rgba(255, 138, 61, 0.2)' }}>
-                        <CheckCircle size={32} />
-                      </div>
-                      <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-text)', marginBottom: '0.75rem' }}>You're on the list!</h2>
-                      <p style={{ color: 'var(--color-text-muted)', fontSize: '1rem', lineHeight: 1.5 }}>
-                        Thank you for your interest in LearnAI. We'll notify you as soon as early access opens up.
-                      </p>
-                    </motion.div>
-                  ) : (
                     <motion.div 
                       key="form"
                       initial={{ opacity: 0 }}
@@ -370,8 +372,8 @@ export default function EarlyAccess() {
                       exit={{ opacity: 0 }}
                     >
                       <div style={{ marginBottom: '1.5rem' }}>
-                        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-text)', marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>Get Early Access</h2>
-                        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>Join the waitlist to be among the first to experience LearnAI.</p>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-text)', marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>Generate Your Course</h2>
+                        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>Paste a syllabus URL, and tell us exactly how you want it taught.</p>
                       </div>
 
                       {error && (
@@ -392,17 +394,61 @@ export default function EarlyAccess() {
                       >
                         <div>
                           <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'rgba(245, 239, 230, 0.6)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                            Your Name
+                            Target Course or Syllabus URL
                           </label>
                           <div style={{ position: 'relative' }}>
                             <div style={{ position: 'absolute', inset: '0 0 0 1rem', display: 'flex', alignItems: 'center', pointerEvents: 'none', color: 'rgba(245, 239, 230, 0.4)' }}>
-                              <User size={16} />
+                              <LinkIcon size={16} />
+                            </div>
+                            <input
+                              type="url"
+                              value={courseUrl}
+                              onChange={(e) => setCourseUrl(e.target.value)}
+                              placeholder="https://..."
+                              style={{ width: '100%', padding: '0.875rem 1rem 0.875rem 2.75rem', borderRadius: '1.25rem', border: '1px solid rgba(255, 255, 255, 0.06)', backgroundColor: 'rgba(255, 255, 255, 0.03)', fontSize: '0.95rem', color: 'var(--color-text)', outline: 'none', transition: 'all 0.2s' }}
+                              onFocus={(e) => { e.target.style.borderColor = 'rgba(255, 138, 61, 0.5)'; e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'; e.target.style.boxShadow = '0 0 0 3px rgba(255, 138, 61, 0.15)'; }}
+                              onBlur={(e) => { e.target.style.borderColor = 'rgba(255, 255, 255, 0.06)'; e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'; e.target.style.boxShadow = 'none'; }}
+                            />
+                          </div>
+                          <AnimatePresence>
+                            {(peekTitle || isPeeking) && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                                animate={{ opacity: 1, height: 'auto', marginTop: '0.75rem' }}
+                                exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                                style={{ overflow: 'hidden' }}
+                              >
+                                <div style={{ fontSize: '0.85rem', color: 'var(--color-accent)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                  {isPeeking ? (
+                                    <>
+                                      <div style={{ width: '12px', height: '12px', border: '2px solid rgba(255, 138, 61, 0.3)', borderTopColor: 'var(--color-accent)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                                      <span style={{ color: 'rgba(255, 138, 61, 0.7)' }}>Scanning URL...</span>
+                                      <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
+                                    </>
+                                  ) : peekTitle ? (
+                                    <>
+                                      ✨ Found: {peekTitle}
+                                    </>
+                                  ) : null}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'rgba(245, 239, 230, 0.6)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            Instructor Name / Role <span style={{ color: 'rgba(245, 239, 230, 0.3)', fontWeight: 500, textTransform: 'none', letterSpacing: 'normal' }}>(Optional)</span>
+                          </label>
+                          <div style={{ position: 'relative' }}>
+                            <div style={{ position: 'absolute', inset: '0 0 0 1rem', display: 'flex', alignItems: 'center', pointerEvents: 'none', color: 'rgba(245, 239, 230, 0.4)' }}>
+                              <UserCircle size={16} />
                             </div>
                             <input
                               type="text"
-                              value={name}
-                              onChange={(e) => setName(e.target.value)}
-                              placeholder="Enter full name"
+                              value={instructor}
+                              onChange={(e) => setInstructor(e.target.value)}
+                              placeholder="e.g. Stanford Professor, YC Founder"
                               style={{ width: '100%', padding: '0.875rem 1rem 0.875rem 2.75rem', borderRadius: '1.25rem', border: '1px solid rgba(255, 255, 255, 0.06)', backgroundColor: 'rgba(255, 255, 255, 0.03)', fontSize: '0.95rem', color: 'var(--color-text)', outline: 'none', transition: 'all 0.2s' }}
                               onFocus={(e) => { e.target.style.borderColor = 'rgba(255, 138, 61, 0.5)'; e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'; e.target.style.boxShadow = '0 0 0 3px rgba(255, 138, 61, 0.15)'; }}
                               onBlur={(e) => { e.target.style.borderColor = 'rgba(255, 255, 255, 0.06)'; e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'; e.target.style.boxShadow = 'none'; }}
@@ -412,27 +458,19 @@ export default function EarlyAccess() {
 
                         <div>
                           <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'rgba(245, 239, 230, 0.6)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                            Email Address
+                            How should it be taught? <span style={{ color: 'rgba(245, 239, 230, 0.3)', fontWeight: 500, textTransform: 'none', letterSpacing: 'normal' }}>(Optional)</span>
                           </label>
-                          <div style={{ position: 'relative' }}>
-                            <div style={{ position: 'absolute', inset: '0 0 0 1rem', display: 'flex', alignItems: 'center', pointerEvents: 'none', color: 'rgba(245, 239, 230, 0.4)' }}>
-                              <Mail size={16} />
-                            </div>
-                            <input
-                              type="email"
-                              value={email}
-                              onChange={(e) => setEmail(e.target.value)}
-                              placeholder="john@example.com"
-                              style={{ width: '100%', padding: '0.875rem 1rem 0.875rem 2.75rem', borderRadius: '1.25rem', border: '1px solid rgba(255, 255, 255, 0.06)', backgroundColor: 'rgba(255, 255, 255, 0.03)', fontSize: '0.95rem', color: 'var(--color-text)', outline: 'none', transition: 'all 0.2s' }}
-                              onFocus={(e) => { e.target.style.borderColor = 'rgba(255, 138, 61, 0.5)'; e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'; e.target.style.boxShadow = '0 0 0 3px rgba(255, 138, 61, 0.15)'; }}
-                              onBlur={(e) => { e.target.style.borderColor = 'rgba(255, 255, 255, 0.06)'; e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'; e.target.style.boxShadow = 'none'; }}
-                            />
-                          </div>
-                          
-                          <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'rgba(245, 239, 230, 0.4)', fontSize: '0.75rem', fontWeight: 500 }}>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                            Secure & private. We'll never spam you.
-                          </div>
+                          <textarea
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                            placeholder="e.g. 'Explain like I'm a 10 year old' or 'Use real-world case studies'"
+                            style={{ width: '100%', padding: '1rem', borderRadius: '1.25rem', border: '1px solid rgba(255, 255, 255, 0.06)', backgroundColor: 'rgba(255, 255, 255, 0.03)', fontSize: '0.95rem', color: 'var(--color-text)', minHeight: '5rem', resize: 'vertical', outline: 'none', fontFamily: 'inherit', transition: 'all 0.2s' }}
+                            onFocus={(e) => { e.target.style.borderColor = 'rgba(255, 138, 61, 0.5)'; e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'; e.target.style.boxShadow = '0 0 0 3px rgba(255, 138, 61, 0.15)'; }}
+                            onBlur={(e) => { e.target.style.borderColor = 'rgba(255, 255, 255, 0.06)'; e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'; e.target.style.boxShadow = 'none'; }}
+                          />
+                          <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>
+                            Fine-tune the AI's understanding of their teaching style.
+                          </p>
                         </div>
 
                         <button 
@@ -444,29 +482,38 @@ export default function EarlyAccess() {
                           {isLoading ? (
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>
                               <div className="spinner"></div>
-                              Joining...
+                              Generating...
                             </div>
                           ) : (
                             <>
-                              Join Waitlist
+                              Generate Course
                             </>
                           )}
                         </button>
 
-                        <div style={{ marginTop: '1.25rem', textAlign: 'center' }}>
-                          <button 
-                            type="button" 
-                            onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-                            style={{ background: 'none', border: 'none', color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer', transition: 'color 0.2s', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem', textDecoration: 'underline dotted', textUnderlineOffset: '4px' }}
-                            onMouseOver={(e) => e.currentTarget.style.color = 'var(--color-text)'}
-                            onMouseOut={(e) => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.4)'}
+                        <div style={{ textAlign: 'center', marginTop: '0.75rem' }}>
+                          <a 
+                            href={`/course/demo-psychology-of-decisions`}
+                            style={{ 
+                              fontSize: '0.85rem', 
+                              color: 'var(--color-text-muted)', 
+                              textDecoration: 'none',
+                              transition: 'color 0.2s'
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-accent)')}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-muted)')}
                           >
-                            How it works
-                          </button>
+                            or see a sample course →
+                          </a>
+                        </div>
+                        
+                        <div style={{ marginTop: '1.75rem', paddingTop: '1.75rem', display: 'flex', gap: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                          <p style={{ fontSize: '0.75rem', color: 'rgba(245, 239, 230, 0.4)', lineHeight: 1.6, margin: 0 }}>
+                            LearnAI analyzes syllabus links in seconds to instantly construct a highly personalized curriculum tailored to your exact learning style.
+                          </p>
                         </div>
                       </form>
                     </motion.div>
-                  )}
                 </AnimatePresence>
               </div>
             </div>
@@ -521,7 +568,7 @@ export default function EarlyAccess() {
                 pointerEvents: 'auto', // Re-enable clicking on the button itself
               }}
             >
-              Get Early Access
+              Start Generating
             </button>
           </motion.div>
         )}

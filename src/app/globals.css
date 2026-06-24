@@ -163,6 +163,27 @@
     position: relative;
     z-index: 1;
   }
+
+  /* Clerk Footer & Dev Mode Overrides */
+  .cl-footer,
+  .cl-footer * {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  .cl-footer span,
+  .cl-footer p,
+  .cl-footer a {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+  .cl-footer a:hover {
+    color: var(--color-accent) !important;
+  }
+  
+  /* Completely hide the 'Secured by Clerk / Development Mode' banner */
+  .cl-footer > div:last-child,
+  .cl-footer > div:nth-child(n+2) {
+    display: none !important;
+  }
 }
 
 

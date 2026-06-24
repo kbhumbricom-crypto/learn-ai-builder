@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 import { generateText } from 'ai';
-import { createGroq } from '@ai-sdk/groq';
+import { getAvailableGroqClient, markKeyRateLimited } from '@/lib/groqRotation';
 import prisma from '@/lib/prisma';
-
-const groq = createGroq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+import { auth } from '@clerk/nextjs/server';
+import { cookies } from 'next/headers';
+import { randomUUID } from 'crypto';
 
 export async function POST(req: Request) {
   try {
@@ -14,6 +13,43 @@ export async function POST(req: Request) {
 
     if (!courseUrl) {
       return NextResponse.json({ error: 'Course URL is required' }, { status: 400 });
+    }
+
+    // 0. PLG Tier Limits & Account Linking
+    const { userId } = await auth();
+    const cookieStore = await cookies();
+    let sessionId = cookieStore.get('learnai_session_id')?.value;
+    
+    if (!sessionId && !userId) {
+       sessionId = randomUUID();
+       cookieStore.set('learnai_session_id', sessionId, { httpOnly: true, secure: true, maxAge: 60*60*24*365 });
+    }
+
+    if (userId && sessionId) {
+       // Link previous anonymous courses to this new signed-in user
+       await prisma.course.updateMany({
+           where: { sessionId, userId: null },
+           data: { userId }
+       });
+       await prisma.jobQueue.updateMany({
+           where: { sessionId, userId: null },
+           data: { userId }
+       });
+    }
+
+    let coursesCount = 0;
+    if (userId) {
+       coursesCount = await prisma.course.count({ where: { userId } });
+    } else if (sessionId) {
+       coursesCount = await prisma.course.count({ where: { sessionId, userId: null } });
+    }
+
+    if (!userId && coursesCount >= 1) {
+       return NextResponse.json({ error: 'Please sign in to generate another course.', requiresAuth: true }, { status: 401 });
+    }
+
+    if (coursesCount >= 2) {
+       return NextResponse.json({ error: 'Subscription required.', requiresPro: true }, { status: 403 });
     }
 
     // 1. Fetch the page with a strict timeout to prevent hanging connections
@@ -59,6 +95,28 @@ export async function POST(req: Request) {
     }
 
     // 3. Universal AI Extraction
+    let groqClient: any;
+    let currentKey: string = '';
+    
+    try {
+      const available = getAvailableGroqClient();
+      groqClient = available.client;
+      currentKey = available.apiKey;
+    } catch (e: any) {
+      if (e.message.startsWith('ALL_KEYS_EXHAUSTED')) {
+         const job = await prisma.jobQueue.create({
+           data: { courseUrl, notes, instructorOverride, userId, sessionId }
+         });
+         return NextResponse.json({ 
+           error: 'All AI Engines are currently busy. You have been added to the waitlist.', 
+           isRateLimit: true,
+           isQueued: true,
+           jobId: job.id
+         }, { status: 429 });
+      }
+      throw e;
+    }
+
     const prompt = `You are a world-class curriculum designer and AI extractor. 
     
 Analyze the following text extracted from a webpage (it may be messy).
@@ -108,7 +166,7 @@ ${pageText}
     let textOutput = "{}";
     try {
       const result = await generateText({
-        model: groq('llama-3.3-70b-versatile'),
+        model: groqClient('llama-3.3-70b-versatile'),
         prompt,
         temperature: 0.2,
         abortSignal: AbortSignal.timeout(25000),
@@ -118,10 +176,15 @@ ${pageText}
       console.error("Groq API Error:", apiError);
       const errMsg = (apiError?.message || '').toLowerCase();
       if (errMsg.includes('429') || errMsg.includes('quota') || errMsg.includes('exhausted') || errMsg.includes('rate limit')) {
+         markKeyRateLimited(currentKey, 60);
+         const job = await prisma.jobQueue.create({
+           data: { courseUrl, notes, instructorOverride, userId, sessionId }
+         });
          return NextResponse.json({ 
-           error: 'Google API Rate Limit Exceeded', 
+           error: 'Groq API Rate Limit Exceeded', 
            isRateLimit: true,
-           retryAfter: 60
+           isQueued: true,
+           jobId: job.id
          }, { status: 429 });
       }
       return NextResponse.json({ error: `Groq API returned an error: ${apiError?.message}` }, { status: 500 });
@@ -151,6 +214,8 @@ ${pageText}
         tagline: course.tagline || '',
         sourceLabel: new URL(courseUrl).hostname,
         sourceText: pageText,
+        userId: userId || null,
+        sessionId: sessionId || null,
         modulesCount: modules?.length || 0,
         lessonsCount: modules?.reduce((acc: number, m: any) => acc + (m.lessons?.length || 0), 0) || 0,
         instructor: {
