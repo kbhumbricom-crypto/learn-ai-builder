@@ -16,9 +16,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://learn-ai-landing.vercel.app'),
+  metadataBase: new URL('https://learn-ai-builder-hq6imf88g-kbteam.vercel.app'),
   title: "LearnAI",
   description: "Turn any syllabus into a deeply personalized course taught in the style of your favorite expert.",
+  openGraph: {
+    title: "LearnAI",
+    description: "Turn any syllabus into a deeply personalized course.",
+    siteName: "LearnAI",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LearnAI",
+    description: "Turn any syllabus into a deeply personalized course.",
+  }
 };
 
 export const viewport: Viewport = {
