@@ -73,8 +73,8 @@ function ProgressPageContent() {
     }, 1200);
   };
 
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [10, -10]), { damping: 30, stiffness: 200 });
-  const rotateYBase = useSpring(useTransform(mouseX, [-0.5, 0.5], [-10, 10]), { damping: 30, stiffness: 200 });
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [25, -25]), { damping: 25, stiffness: 150 });
+  const rotateYBase = useSpring(useTransform(mouseX, [-0.5, 0.5], [-25, 25]), { damping: 25, stiffness: 150 });
   
   const flipProgress = useSpring(0, { damping: 20, stiffness: 100 });
   const rotateY = useTransform(() => rotateYBase.get() + flipProgress.get());
