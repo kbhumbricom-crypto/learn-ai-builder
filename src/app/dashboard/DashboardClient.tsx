@@ -85,8 +85,8 @@ export default function DashboardClient({ courses }: { courses: any[] }) {
 
   return (
     <section>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 600, letterSpacing: '-0.01em' }}>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h2 className="text-xl font-semibold tracking-tight">
           {courses.length} enrolled {courses.length === 1 ? 'course' : 'courses'}
         </h2>
 
@@ -120,7 +120,7 @@ export default function DashboardClient({ courses }: { courses: any[] }) {
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2rem' }}>
+      <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(340px,1fr))] gap-6 md:gap-8">
         {courses.map(course => {
           const progress = getCourseProgress(course);
           const isSelected = selectedIds.has(course.id);

@@ -24,7 +24,7 @@ export default async function DashboardPage() {
   });
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--color-bg)', color: 'var(--color-text)', position: 'relative', overflow: 'hidden' }}>
+    <div className="flex flex-col md:flex-row min-h-screen relative overflow-hidden bg-[var(--color-bg)] text-[var(--color-text)]">
       {/* Animated AI Blobs for magical background */}
       <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', zIndex: 0, pointerEvents: 'none' }}>
         <div className="blob blob-1" style={{ filter: 'blur(100px)' }}></div>
@@ -34,13 +34,13 @@ export default async function DashboardPage() {
       </div>
 
       {/* Sidebar Navigation */}
-      <aside style={{ width: '280px', flexShrink: 0, borderRight: '1px solid rgba(255,255,255,0.08)', backgroundColor: 'rgba(5,5,5,0.6)', backdropFilter: 'blur(20px)', position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ padding: '2rem 1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 800, fontSize: '1.5rem', color: '#f5efe6', padding: '1rem', letterSpacing: '-0.02em', marginBottom: '2rem' }}>
+      <aside className="w-full md:w-[280px] shrink-0 border-b md:border-b-0 md:border-r border-white/10 bg-black/60 backdrop-blur-xl relative z-10 flex flex-col">
+        <div className="p-6 md:p-8">
+          <div className="flex items-center gap-3 font-extrabold text-2xl text-[#f5efe6] tracking-tight mb-8">
             <Logo size={30} /> LearnAI
           </div>
 
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <nav className="flex flex-col gap-2">
             <Link href="/dashboard" className="sidebar-link active">
               <LayoutDashboard size={18} /> My Courses
             </Link>
@@ -53,8 +53,8 @@ export default async function DashboardPage() {
           </nav>
         </div>
         
-        <div style={{ marginTop: 'auto', padding: '2rem 1.5rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-           <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div className="mt-auto p-6 md:p-8 border-t border-white/10 hidden md:block">
+           <nav className="flex flex-col gap-2">
             <Link href="#" className="sidebar-link">
               <Settings size={18} /> Settings
             </Link>
@@ -66,10 +66,10 @@ export default async function DashboardPage() {
       </aside>
 
       {/* Main Content Area */}
-      <main style={{ flexGrow: 1, padding: '4rem', position: 'relative', zIndex: 10, overflowY: 'auto' }}>
-        <header style={{ marginBottom: '4rem' }}>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '0.5rem' }}>My Courses</h1>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem' }}>Manage and resume your generated courses.</p>
+      <main className="flex-grow p-6 sm:p-10 lg:p-16 relative z-10 overflow-y-auto">
+        <header className="mb-8 md:mb-16">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">My Courses</h1>
+          <p className="text-[var(--color-text-muted)] text-lg">Manage and resume your generated courses.</p>
         </header>
 
         <DashboardClient courses={courses} />
