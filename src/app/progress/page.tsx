@@ -73,8 +73,8 @@ function ProgressPageContent() {
     }, 1200);
   };
 
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [25, -25]), { damping: 25, stiffness: 150 });
-  const rotateYBase = useSpring(useTransform(mouseX, [-0.5, 0.5], [-25, 25]), { damping: 25, stiffness: 150 });
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [15, -15]), { damping: 25, stiffness: 150 });
+  const rotateYBase = useSpring(useTransform(mouseX, [-0.5, 0.5], [-15, 15]), { damping: 25, stiffness: 150 });
   
   const flipProgress = useSpring(0, { damping: 20, stiffness: 100 });
   const rotateY = useTransform(() => rotateYBase.get() + flipProgress.get());
@@ -135,7 +135,12 @@ function ProgressPageContent() {
 
   useEffect(() => {
     if (typeof window !== 'undefined' && typeof (window as any).DeviceOrientationEvent?.requestPermission === 'function') {
-      setNeedsGyroPermission(true);
+      const stored = localStorage.getItem('gyroPermissionGranted');
+      if (stored === 'true') {
+        setGyroPermissionGranted(true);
+      } else {
+        setNeedsGyroPermission(true);
+      }
     }
   }, []);
 
@@ -192,6 +197,7 @@ function ProgressPageContent() {
         const permissionState = await (DeviceOrientationEvent as any).requestPermission();
         if (permissionState === 'granted') {
           setGyroPermissionGranted(true);
+          localStorage.setItem('gyroPermissionGranted', 'true');
         }
       } catch (error) {
         console.error('Gyro permission error:', error);
