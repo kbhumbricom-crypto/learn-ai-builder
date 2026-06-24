@@ -128,6 +128,8 @@ function ProgressPageContent() {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
+  }, []);
+
   const [gyroPermissionGranted, setGyroPermissionGranted] = useState<boolean | null>(null);
   const [needsGyroPermission, setNeedsGyroPermission] = useState(false);
 
