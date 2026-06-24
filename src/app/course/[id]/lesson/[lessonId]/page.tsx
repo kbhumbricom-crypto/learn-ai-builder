@@ -200,44 +200,26 @@ export default function LessonReader({ params }: { params: Promise<{ id: string,
       <ReadingProgressBar />
 
       {/* Floating Toolbar (Right Aligned) */}
-      <div style={{ 
-        position: 'fixed', 
-        top: '2rem', 
-        right: '2rem', 
-        zIndex: 100,
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1rem',
+      <div className="fixed top-4 right-4 sm:top-8 sm:right-8 z-[100] flex items-center gap-2 sm:gap-4 transition-all duration-500 ease-out" style={{ 
         opacity: showControls ? 1 : 0,
         transform: showControls ? 'translateY(0)' : 'translateY(-20px)',
         pointerEvents: showControls ? 'auto' : 'none',
-        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
       }}>
         
         {/* Audio Player */}
         {!loading && !error && completion && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem',
-            padding: '0.5rem 1rem',
-            backgroundColor: 'rgba(10, 10, 10, 0.8)',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '1.5rem',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
-          }}>
+          <div className="flex items-center gap-2 sm:gap-4 px-3 sm:px-4 py-2 bg-[#0a0a0a]/80 backdrop-blur-md border border-white/10 rounded-full shadow-2xl">
             {isPlaying ? (
-              <button onClick={handlePause} style={{ background: 'none', border: 'none', color: 'var(--color-accent)', cursor: 'pointer', display: 'flex', padding: 0 }}>
+              <button onClick={handlePause} className="flex p-0 bg-transparent border-none text-accent cursor-pointer">
                 <Pause size={18} />
               </button>
             ) : (
-              <button onClick={handlePlay} style={{ background: 'none', border: 'none', color: 'var(--color-accent)', cursor: 'pointer', display: 'flex', padding: 0 }}>
+              <button onClick={handlePlay} className="flex p-0 bg-transparent border-none text-accent cursor-pointer">
                 {isPaused ? <Play size={18} /> : <Volume2 size={18} />}
               </button>
             )}
 
-            <span style={{ fontSize: '0.85rem', color: isPlaying ? 'var(--color-accent)' : isPaused ? 'var(--color-text-muted)' : 'var(--color-text-muted)', fontWeight: 500, minWidth: '40px' }}>
+            <span className="hidden sm:inline min-w-[40px] text-[0.85rem] font-medium" style={{ color: isPlaying ? 'var(--color-accent)' : 'var(--color-text-muted)' }}>
               {isPlaying ? 'Playing...' : isPaused ? 'Paused' : 'Listen'}
             </span>
 

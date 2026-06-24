@@ -92,20 +92,20 @@ export default async function CourseOverview({ params }: Props) {
       <div style={{ position: 'relative', zIndex: 10 }}>
         <main style={{ maxWidth: '1100px', margin: '2.5rem auto', padding: '0 1.5rem 4rem' }}>
           
-          <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '2rem' }}>
+          <header className="mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 sm:gap-8">
             <div>
               <h1 className="course-title" style={{ fontSize: 'clamp(1.85rem, 3vw, 2.5rem)', marginBottom: '0.5rem' }}>{course.title}</h1>
-              <p style={{ fontSize: '1.05rem', color: 'var(--color-text-muted)', lineHeight: 1.5, maxWidth: '90%' }}>{course.tagline}</p>
+              <p style={{ fontSize: '1.05rem', color: 'var(--color-text-muted)', lineHeight: 1.5, maxWidth: '100%' }}>{course.tagline}</p>
             </div>
-            <div style={{ flexShrink: 0, marginTop: '0.25rem' }}>
+            <div className="flex-shrink-0 sm:mt-1">
               <ShareButton />
             </div>
           </header>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', alignItems: 'stretch' }}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
             
             {/* Widget 1: Resume Learning (spans 2 columns) */}
-            <div className="glass-card" style={{ gridColumn: 'span 2', padding: '2rem', position: 'relative', overflow: 'hidden', background: 'linear-gradient(145deg, rgba(255, 138, 61, 0.08) 0%, rgba(5,5,5,0.4) 100%)', border: '1px solid rgba(255, 138, 61, 0.15)', display: 'flex', flexDirection: 'column', minHeight: '240px' }}>
+            <div className="glass-card flex flex-col min-h-[240px] md:col-span-2 relative overflow-hidden" style={{ padding: '2rem', background: 'linear-gradient(145deg, rgba(255, 138, 61, 0.08) 0%, rgba(5,5,5,0.4) 100%)', border: '1px solid rgba(255, 138, 61, 0.15)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-accent)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.75rem', marginBottom: '1rem' }}>
                 <PlayCircle size={16} /> 
                 {completedLessons === 0 ? 'Start Your Journey' : isCompleted ? 'Course Completed' : 'Resume Learning'}
@@ -130,7 +130,7 @@ export default async function CourseOverview({ params }: Props) {
             </div>
 
             {/* Widget 2: Course Progress (spans 1 column) */}
-            <div className="glass-card" style={{ gridColumn: 'span 1', padding: '2rem', display: 'flex', flexDirection: 'column', minHeight: '240px' }}>
+            <div className="glass-card flex flex-col min-h-[240px] md:col-span-1" style={{ padding: '2rem' }}>
               <h3 style={{ fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <LayoutDashboard size={15} color="var(--color-accent)" /> Course Progress
               </h3>
@@ -158,12 +158,12 @@ export default async function CourseOverview({ params }: Props) {
             </div>
 
             {/* Widget 3: Wide Instructor Profile (spans 2 columns) */}
-            <div className="glass-card" style={{ gridColumn: 'span 2', padding: '2rem', display: 'flex', flexDirection: 'column' }}>
+            <div className="glass-card flex flex-col md:col-span-2" style={{ padding: '2rem' }}>
               <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <User size={15} color="var(--color-accent)" /> Your Instructor
               </h3>
               
-              <div style={{ display: 'flex', gap: '2rem', alignItems: 'stretch' }}>
+              <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-stretch">
                 
                 {/* Left Column */}
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -197,7 +197,8 @@ export default async function CourseOverview({ params }: Props) {
                 </div>
 
                 {/* Divider */}
-                <div style={{ width: '1px', backgroundColor: 'rgba(255,255,255,0.08)' }}></div>
+                <div className="hidden md:block w-px bg-white/10"></div>
+                <div className="block md:hidden h-px w-full bg-white/10"></div>
 
                 {/* Right Column */}
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -236,7 +237,7 @@ export default async function CourseOverview({ params }: Props) {
             </div>
 
             {/* Widget 4: Quick Syllabus (spans 1 column) */}
-            <div className="glass-card" style={{ gridColumn: 'span 1', padding: '2rem', display: 'flex', flexDirection: 'column' }}>
+            <div className="glass-card flex flex-col md:col-span-1" style={{ padding: '2rem' }}>
               <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Book size={15} color="var(--color-accent)" />
                 <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>Syllabus Queue</h3>
